@@ -1,0 +1,172 @@
+_type: export
+__export_format: 4
+__export_date: 2023-07-19T01:09:03.108Z
+__export_source: insomnia.desktop.app:v2023.1.0
+resources:
+  - _id: req_b8e6b5a1b895403abdb4baa46bf839a4
+    parentId: fld_3b030a01d12a420c8522f6cc02c2c084
+    modified: 1689728708349
+    created: 1689712524519
+    url: https://{{ _.OpenAIURL }}/v1/chat/completions
+    name: Complition
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: >-
+        {
+          "model": "gpt-3.5-turbo",
+          "messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Hello!"}]
+        }
+    parameters: []
+    headers:
+      - id: pair_a6c6341c30b044d5a7e2f16c4fe26bc5
+        name: Content-Type
+        value: application/json
+        description: ""
+      - id: pair_3952ec24ad724c78af404381b99be314
+        name: Authorization
+        value: "{{ _.OpenAIKEY }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -1689712524519
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: fld_3b030a01d12a420c8522f6cc02c2c084
+    parentId: wrk_7585343ceabc4748ab00dad0c8c3194a
+    modified: 1689712519893
+    created: 1689712519893
+    name: OpenAI
+    description: ""
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -1689712519893
+    _type: request_group
+  - _id: wrk_7585343ceabc4748ab00dad0c8c3194a
+    parentId: null
+    modified: 1689710523460
+    created: 1689710510188
+    name: Deepl & OpenAI
+    description: ""
+    scope: collection
+    _type: workspace
+  - _id: req_1eea88e83f6f452dae7edb82f911a399
+    parentId: fld_ccc29f4db02b4da783de80c2fc58b8fe
+    modified: 1689712038666
+    created: 1689710536866
+    url: https://{{ _.DeepLURL }}/v2/translate
+    name: Translate
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: >
+        {"text":["The table is green. The chair is black.", "hello, my name is
+        steve"],"target_lang":"ZH","formality":"prefer_less"}
+    parameters: []
+    headers:
+      - id: pair_31777f303a34449b973a7000a9704840
+        name: Authorization
+        value: "{{ _.DeepLAuth }}"
+        description: ""
+      - id: pair_c1df00ec23c44621853b6699d974acf6
+        name: Content-Type
+        value: application/json
+        description: ""
+    authentication: {}
+    metaSortKey: -1689711020003
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: fld_ccc29f4db02b4da783de80c2fc58b8fe
+    parentId: wrk_7585343ceabc4748ab00dad0c8c3194a
+    modified: 1689711569292
+    created: 1689711503140
+    name: DeepL
+    description: ""
+    environment: {}
+    environmentPropertyOrder: {}
+    metaSortKey: -1689711503140
+    _type: request_group
+  - _id: req_faccf9113c984a5590ddf564fb2f63b9
+    parentId: fld_ccc29f4db02b4da783de80c2fc58b8fe
+    modified: 1689712064201
+    created: 1689711512802
+    url: https://{{ _.DeepLURL }}/v2/usage
+    name: Usage
+    description: ""
+    method: GET
+    body: {}
+    parameters: []
+    headers:
+      - id: pair_aa6b0b946a704285b48957613b008346
+        name: Authorization
+        value: "{{ _.DeepLAuth }}"
+        description: ""
+    authentication: {}
+    metaSortKey: -1689711019953
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: env_7be28e3bc9915af974d90531ccead6e085a7c7e5
+    parentId: wrk_7585343ceabc4748ab00dad0c8c3194a
+    modified: 1689728913743
+    created: 1689710510192
+    name: Base Environment
+    data: {}
+    dataPropertyOrder: {}
+    color: null
+    isPrivate: false
+    metaSortKey: 1689710510192
+    _type: environment
+  - _id: jar_7be28e3bc9915af974d90531ccead6e085a7c7e5
+    parentId: wrk_7585343ceabc4748ab00dad0c8c3194a
+    modified: 1689710510193
+    created: 1689710510193
+    name: Default Jar
+    cookies: []
+    _type: cookie_jar
+  - _id: spc_cdb293d5806041bab357a23fb9504bfb
+    parentId: wrk_7585343ceabc4748ab00dad0c8c3194a
+    modified: 1689710510189
+    created: 1689710510189
+    fileName: Deepl
+    contents: ""
+    contentType: yaml
+    _type: api_spec
+  - _id: env_e07a1ed3dd3b413eb945246b24241609
+    parentId: env_7be28e3bc9915af974d90531ccead6e085a7c7e5
+    modified: 1689712956309
+    created: 1689711776313
+    name: Subtitle
+    data:
+      DeepLURL: api-free.deepl.com
+      DeepLAuth: DeepL-Auth-Key [Your DeepL Key]
+      OpenAIURL: api.openai.com
+      OpenAIKEY: Bearer [Your OpenAI Key]
+    dataPropertyOrder:
+      "&":
+        - DeepLURL
+        - DeepLAuth
+        - OpenAIURL
+        - OpenAIKEY
+    color: null
+    isPrivate: true
+    metaSortKey: 1689711776313
+    _type: environment
