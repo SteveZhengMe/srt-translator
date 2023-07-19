@@ -24,15 +24,15 @@ class TestStringMethods(unittest.TestCase):
     def test_openai_translate(self):
         openai.api_key = os.getenv("OpenAI_KEY")
         target_language = "Chinese"
-        text = "Hello. || In today’s globalized world, language barriers are a challenge that businesses and individuals often face."
+        text = "Hello, Tom. || In today’s [globalized] world, language barriers are a challenge that businesses and individuals often face."
         
         chat_completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", 
             messages=[
                 {"role": "system", "content": f"You are a helpful assistant that translates text from any language to {target_language}."},
-                {"role": "user", "content": f"The text is movie dialogue. You should keep the '||' in the result. Ex. Translate 'Hi. || Good morning' should translate to '你好。|| 早上好'. Translate it: {text}"}
+                {"role": "user", "content": f"The text is movie dialogue. You should keep the the punctuations in the result except for comma and period. Also, if there is a person or city name, please keep the original language. Ex. Translate 'Hi, John || Good morning. I am (we are) from Berlin.' should translate to '你好，John|| 早上好。我(我们)来自Berlin。'. Translate it: {text}"}
             ],
             temperature=0 
         )
         #print(chat_completion.choices[0].message.content.strip())
-        self.assertEquals(chat_completion.choices[0].message.content.strip(), "你好。|| 在当今全球化的世界中，语言障碍是企业和个人经常面临的挑战。")
+        self.assertEquals(chat_completion.choices[0].message.content.strip(), "你好，Tom。|| 在今天的[全球化]世界中，语言障碍是企业和个人经常面临的挑战。")

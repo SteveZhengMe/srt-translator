@@ -1,0 +1,11 @@
+vscode:
+    extensions:
+        - streetsidesoftware.code-spell-checker
+        - GitHub.copilot
+        - oderwat.indent-rainbow
+        - ZainChen.json
+        - TabNine.tabnine-vscode
+        - ms-python.python
+        - ms-azuretools.vscode-docker
+        - VisualStudioExptTeam.vscodeintellicode
+        - esbenp.prettier-vscode
