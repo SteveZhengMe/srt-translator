@@ -6,29 +6,37 @@ from libraries import SRTTranslator
 import typer
 import dotenv
 
+def init_conf():
+    dotenv.load_dotenv(dotenv.find_dotenv(".srt-env"))
+    
+    # get all the os environment variables that start with "st__", and save them to a dictionary
+    conf = {}
+    for key, value in os.environ.items():
+        if key.startswith("st__"):
+            conf[key[4:].lower()] = value
+    return conf
+
 def start(file_or_folder_name: str):
     """
     Parameter: file (.srt) or folder (the application will translate all srt files)
     """
-    dotenv.load_dotenv(dotenv.find_dotenv(".srt-env"))
+    conf = init_conf()
     
-    #TODO if a folder is parsed in, create a loop
-    srt_file = file_or_folder_name
-    target_language = os.getenv("target_language")
+    deepL_handler = DeepLUtil(conf)
+    openAI_handler = OpenAIUtil(conf)
     
-    srt_parser = SRTTranslator(srt_file, target_language)
-    deepL_handler = DeepLUtil(os.getenv("DeepL_KEY"), target_language)
-    openAI_handler = OpenAIUtil(os.getenv("OpenAI_KEY"), target_language)
+    #if the input is a folder, translate all the srt files in the folder
+    if os.path.isdir(file_or_folder_name):
+        for file in os.listdir(file_or_folder_name):
+            if file.endswith(".srt"):
+                srt_file = os.path.join(file_or_folder_name, file)
+                print(f"\r\n\r\nProcessing file: {srt_file}")
+                srt_translator = SRTTranslator(srt_file, conf)
+                srt_translator.translate([deepL_handler, openAI_handler]).save()
+    else:
+        srt_translator = SRTTranslator(file_or_folder_name, conf)
+        srt_translator.translate([deepL_handler, openAI_handler]).save()
 
-    translated = []
-    for buffer in srt_parser.get_by_buffer_size(1):
-        if deepL_handler.is_available():
-            translated.append(deepL_handler.translate(buffer))
-        else:
-            translated.append(openAI_handler.translate(buffer))
-    
-    srt_parser.write(translated)
-    
 # start the main function
 if __name__ == '__main__':
     typer.run(start)
