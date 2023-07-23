@@ -13,14 +13,14 @@ class TranslatorBase:
 
 
 class DeepLUtil(TranslatorBase):
-    def __init__(self, conf):
+    def __init__(self, conf:dict):
         self.conf = conf
         self.translator = deepl.Translator(self.conf["deepl_key"])
         self.limit = self.translator.get_usage().character.limit-150000
         self.current_count = self.translator.get_usage().character.count
         self.last_count_check = self.current_count
     
-    def is_available(self):
+    def is_available(self) -> bool:
         # sync the usage every 10000 characters
         if (self.current_count - self.last_count_check > 10000) or (self.current_count - self.last_count_check > 1000 and self.limit - self.current_count < 10000):
             self.current_count = self.translator.get_usage().character.count
@@ -29,7 +29,7 @@ class DeepLUtil(TranslatorBase):
         
         return self.current_count < self.limit
     
-    def translate(self, batch):
+    def translate(self, batch:list) -> list:
         result = self.translator.translate_text(
             batch, 
             target_lang=self.conf["target_language"][0:2]
@@ -39,11 +39,11 @@ class DeepLUtil(TranslatorBase):
         
 
 class OpenAIUtil(TranslatorBase):
-    def __init__(self, conf):
+    def __init__(self, conf:dict):
         self.conf = conf
         openai.api_key = self.conf["openai_key"]
     
-    def translate(self, batch):
+    def translate(self, batch:list) -> list:
         text = f"<p>{'</p><p>'.join(batch)}</p>"
         if f"openai_user_prompt_{self.conf['target_language']}" in self.conf:
             text = self.conf[f"openai_user_prompt_{self.conf['target_language']}"] + " " + text
@@ -82,7 +82,7 @@ class OpenAIUtil(TranslatorBase):
         
 
 class SRTTranslator:
-    def __init__(self, srt_file, conf):
+    def __init__(self, srt_file:str, conf:dict):
         self.conf = conf
         if os.path.isfile(srt_file):
             # add language information to the target file name
@@ -93,7 +93,7 @@ class SRTTranslator:
             # raise file not found exception
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), srt_file)
     
-    def translate(self, translator_list, buffer_size=20):
+    def translate(self, translator_list:list, buffer_size=20):
         translated_list = []
         batch = []
         total_indexes_count = len(self.subtitles)
@@ -133,7 +133,7 @@ class SRTTranslator:
         
         return self
     
-    def __before_translate(self, text):
+    def __before_translate(self, text:str) -> str:
         result = text.strip()
         # replace the "{\an8}" in the text
         result = result.replace("{\\an8}", "")
@@ -147,13 +147,13 @@ class SRTTranslator:
         
         return result
     
-    def __after_translate(self, text):
+    def __after_translate(self, text:str) -> str:
         result = text.strip()
         
         result = result.replace("<br>","\n")
         return result
     
-    def __validate_subtitles(self, content):
+    def __validate_subtitles(self, content:str) -> list:
         subtitles = list(srt.parse(content))
         result_list = []
         deleted_index = -1
