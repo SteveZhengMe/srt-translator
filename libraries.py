@@ -10,13 +10,17 @@ class TranslatorBase:
     def is_available(self):
         # Default to True
         return True
+    
+    def get_usage(self):
+        # unlimited usage
+        return (-1,-1)
 
 
 class DeepLUtil(TranslatorBase):
     def __init__(self, conf:dict):
         self.conf = conf
         self.translator = deepl.Translator(self.conf["deepl_key"])
-        self.limit = self.translator.get_usage().character.limit-150000
+        self.limit = self.translator.get_usage().character.limit-100000
         self.current_count = self.translator.get_usage().character.count
         self.last_count_check = self.current_count
     
@@ -36,6 +40,9 @@ class DeepLUtil(TranslatorBase):
         )
         self.current_count += len("".join(batch))
         return [item.text for item in result]
+    
+    def get_usage(self):
+        return self.limit - self.current_count, self.limit
         
 
 class OpenAIUtil(TranslatorBase):

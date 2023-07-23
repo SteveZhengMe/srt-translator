@@ -49,7 +49,7 @@ class TestStringMethods(unittest.TestCase):
         )
         #print(chat_completion.choices[0].message.content.strip())
         self.assertEquals(chat_completion.choices[0].message.content.strip(), "<p>你好，<br>Tom。</p><p>在今天的[全球化]世界中，语言障碍是企业和个人经常面临的挑战。</p><p>我会说中文</p>")
-
+        
     def test_parse_srt(self):
         with open("test-data/test.srt") as srt_file:
             subtitles = list(srt.parse(srt_file.read()))
