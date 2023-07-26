@@ -1,0 +1,14 @@
+{
+  "name": "default-python-container",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/wxw-matt/devcontainer-features/command_runner:0": {
+      "command1":"curl -sSL https://install.python-poetry.org | python3 -"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "dockerDashComposeVersion": "v2"}
+  }
+}
