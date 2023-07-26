@@ -6,12 +6,12 @@
       "version": "3.11"
     },
     "ghcr.io/wxw-matt/devcontainer-features/command_runner:0": {
-      "command1":"code --install-extension oderwat.indent-rainbow",
-      "command2":"code --install-extension VisualStudioExptTeam.vscodeintellicode",
-      "command3":"code --install-extension ZainChen.json",
-      "command4":"code --install-extension esbenp.prettier-vscode",
-      "command5":"code --install-extension Gruntfuggly.todo-tree",
-      "command6":"code --install-extension redhat.vscode-yaml"
+      "command1":"su - vscode -c 'code --install-extension oderwat.indent-rainbow'",
+      "command2":"su - vscode -c 'code --install-extension VisualStudioExptTeam.vscodeintellicode'",
+      "command3":"su - vscode -c 'code --install-extension ZainChen.json'",
+      "command4":"su - vscode -c 'code --install-extension esbenp.prettier-vscode'",
+      "command5":"su - vscode -c 'code --install-extension Gruntfuggly.todo-tree'",
+      "command6":"su - vscode -c 'code --install-extension redhat.vscode-yaml'"
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "dockerDashComposeVersion": "v2"
