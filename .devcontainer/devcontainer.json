@@ -1,17 +1,21 @@
 {
   "name": "default-python-container",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-buster",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "oderwat.indent-rainbow",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "ZainChen.json",
+        "esbenp.prettier-vscode",
+        "Gruntfuggly.todo-tree",
+        "redhat.vscode-yaml"
+      ]
+    }
+  },
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.11"
-    },
-    "ghcr.io/wxw-matt/devcontainer-features/command_runner:0": {
-      "command1":"su - vscode -c 'code --install-extension oderwat.indent-rainbow'",
-      "command2":"su - vscode -c 'code --install-extension VisualStudioExptTeam.vscodeintellicode'",
-      "command3":"su - vscode -c 'code --install-extension ZainChen.json'",
-      "command4":"su - vscode -c 'code --install-extension esbenp.prettier-vscode'",
-      "command5":"su - vscode -c 'code --install-extension Gruntfuggly.todo-tree'",
-      "command6":"su - vscode -c 'code --install-extension redhat.vscode-yaml'"
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "dockerDashComposeVersion": "v2"
