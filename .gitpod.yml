@@ -9,4 +9,5 @@ vscode:
         - esbenp.prettier-vscode
 tasks:
   - name: Install poetry
-    command: curl -sSL https://install.python-poetry.org | python3 -
+    command: |
+      curl -sSL https://install.python-poetry.org | python3 -
