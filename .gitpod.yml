@@ -7,3 +7,6 @@ vscode:
         - ms-azuretools.vscode-docker
         - VisualStudioExptTeam.vscodeintellicode
         - esbenp.prettier-vscode
+tasks:
+  - name: Install poetry
+    command: curl -sSL https://install.python-poetry.org | python3 -

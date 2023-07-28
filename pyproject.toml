@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "srt-translator"
+version = "0.1.0"
+description = "Translate the subtitles to any language."
+authors = ["Steve Zheng"]
+license = "Apache 2"
+readme = "README.md"
+packages = [{include = "*.py"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+openai = "^0.27.8"
+deepl = "^1.15.0"
+srt = "^3.5.3"
+typer = "^0.9.0"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
