@@ -11,17 +11,10 @@ import shutil
 typer_app = typer.Typer()
 
 def init_conf():
-    # if the .env-private file exists, load the environment variables from it, else if the .env-prod file exists, load the environment variables from it
-    if os.path.exists(".env-private"):
-        dotenv.load_dotenv(dotenv.find_dotenv(".env-private"))
-    elif os.path.exists(".env-prod"):
-        dotenv.load_dotenv(dotenv.find_dotenv(".env-prod"))
-    
-    # get all the os environment variables that start with "st__", and save them to a dictionary
-    conf = {}
-    for key, value in os.environ.items():
-        if key.startswith("st__"):
-            conf[key[4:].lower()] = value
+    conf = {
+        **dotenv.dotenv_values(".env"),  # load shared development variables
+        **os.environ,  # override loaded values with environment variables
+    }
     return conf
 
 @typer_app.command("translate")

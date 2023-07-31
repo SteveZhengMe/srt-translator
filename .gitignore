@@ -1,7 +1,8 @@
 data/
 test-data/
-.env-private
 poetry.lock
+# use poetry, requirements.txt is not needed
+requirements.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -125,7 +126,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
