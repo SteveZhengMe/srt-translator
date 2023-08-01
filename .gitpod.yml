@@ -8,9 +8,11 @@ vscode:
         - VisualStudioExptTeam.vscodeintellicode
         - esbenp.prettier-vscode
 tasks:
-  - name: Install poetry
-    command: curl -sSL https://install.python-poetry.org | python3 -
-  - name: Install dependencies
-    command: poetry install --no-root
-  - name: export libraries and use pip to install them
-    command: poetry export -f requirements.txt --output requirements.txt && pip install -r requirements.txt && rm requirements.txt
+  # many tasks will run in parallel or use "gp sync-await and gp sync-done."
+  - name: Install poetry and dependencies, then export libraries and use pip to install them
+    before: curl -sSL https://install.python-poetry.org | python3 -
+    command: >
+      poetry install --no-root && 
+      poetry export -f requirements.txt --output requirements.txt && 
+      pip install -r requirements.txt && 
+      rm requirements.txt
