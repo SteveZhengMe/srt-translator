@@ -12,8 +12,8 @@ typer_app = typer.Typer()
 
 def init_conf():
     conf = {
-        **os.environ,  # override loaded values with environment variables
-        **dotenv.dotenv_values(".env")  # load shared development variables
+        **dotenv.dotenv_values(".env"),  # load shared development variables
+        **os.environ  # override loaded values with environment variables
     }
     return conf
 
