@@ -6,17 +6,21 @@ import srt
 from libraries import DeepLUtil
 from libraries import OpenAIUtil
 from libraries import SRTTranslator
-from app import init_conf, create_engine
+from app import init_conf, create_engine, scan_folder
 
 class TestStringMethods(unittest.TestCase):
     # setup
     def setUp(self):
         self.conf = init_conf()
-        self.engine_array = create_engine(self.conf)
+        # find the DeepLUtil in the list
+        self.deepl_engine = list(filter(lambda x: isinstance(x, DeepLUtil), create_engine(self.conf)))
+        # find the OpenAIUtil in the list
+        self.openai_engine = list(filter(lambda x: isinstance(x, OpenAIUtil), create_engine(self.conf)))
     
     def test_load_env(self):
         self.assertNotEquals(len(self.conf), 0)
-        self.assertNotEquals(len(self.engine_array), 0)
+        self.assertNotEquals(len(self.deepl_engine), 0)
+        self.assertNotEquals(len(self.openai_engine), 0)
         self.assertEquals(self.conf["deepl_key"][-2:],"fx")
         self.assertEquals(self.conf["openai_key"][:2],"sk")
 
@@ -64,16 +68,23 @@ class TestStringMethods(unittest.TestCase):
         self.assertEquals(len(srt_parser.subtitles), 106)
         
     def test_DeepLUtil(self):
-        deepl_util = DeepLUtil(self.conf)
+        deepl_util = self.openai_engine[0]
         self.assertTrue(deepl_util.is_available())
-        self.assertEquals(deepl_util.translate(["Hello, Tom. || In today’s [globalized] world, language barriers are a challenge that businesses and individuals often face.", "I speak Chinese"]),["你好，汤姆。|| 在当今[全球化]的世界里，语言障碍是企业和个人经常面临的挑战。","我会说中文"])
+        self.assertEquals(deepl_util.translate(["Hello, Tom. || language barriers are a [challenge] that businesses and individuals often face.", "I speak Chinese"]),['你好，Tom。|| 语言障碍是企业和个人经常面临的[挑战]。', '我会说中文'])
         
     def test_OpenAIUtil(self):
-        openai_util = OpenAIUtil(self.conf)
+        openai_util = self.openai_engine[0]
         self.assertTrue(openai_util.is_available())
         self.assertEquals(openai_util.translate(["Hello, Tom.|| In today’s [globalized] world, language barriers are a challenge that businesses and individuals often face.", "I speak Chinese."]),["你好，Tom。|| 在今天的[全球化]世界中，语言障碍是企业和个人经常面临的挑战。","我会说中文。"])
         
     def test_integrate(self):
         srt_parser = SRTTranslator("test-data/test.srt", self.conf)
-        srt_parser.translate([DeepLUtil(self.conf),OpenAIUtil(self.conf)])
+        engine = []
+        engine.extend(self.deepl_engine)
+        engine.extend(self.openai_engine)
+        
+        srt_parser.translate(engine)
         srt_parser.save()
+    
+    def test_scan(self):
+        scan_folder("./data/subs", "./data", "Chinese", "English", "y")

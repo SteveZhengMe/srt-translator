@@ -6,10 +6,8 @@ ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 WORKDIR /app
 COPY . /app
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        # deps for installing poetry
-        curl
+    && apt-get install --no-install-recommends -y curl
 RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN poetry install --no-root
-VOLUME ["/app/data"]
-ENTRYPOINT [ "poetry", "run", "python3", "/app/app.py", "interact", "/app/data", "Chinese", "English", "y"]
+VOLUME ["/app/data","/app/export"]
+ENTRYPOINT [ "poetry", "run", "python3", "/app/app.py", "interact", "/app/data", "/app/export", "Chinese", "English", "y"]
