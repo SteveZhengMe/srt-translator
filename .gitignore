@@ -1,5 +1,4 @@
 data/
-test-data/
 poetry.lock
 # use poetry, requirements.txt is not needed
 requirements.txt

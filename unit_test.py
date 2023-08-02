@@ -6,15 +6,17 @@ import srt
 from libraries import DeepLUtil
 from libraries import OpenAIUtil
 from libraries import SRTTranslator
-from app import init_conf
+from app import init_conf, create_engine
 
 class TestStringMethods(unittest.TestCase):
     # setup
     def setUp(self):
         self.conf = init_conf()
+        self.engine_array = create_engine(self.conf)
     
     def test_load_env(self):
         self.assertNotEquals(len(self.conf), 0)
+        self.assertNotEquals(len(self.engine_array), 0)
         self.assertEquals(self.conf["deepl_key"][-2:],"fx")
         self.assertEquals(self.conf["openai_key"][:2],"sk")
 

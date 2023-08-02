@@ -17,6 +17,23 @@ def init_conf():
     }
     return conf
 
+def create_engine(conf):
+    engine_array = []
+    # get the deepl key from conf
+    for key in conf["deepl_key"].split(",,"):
+        if key.strip()[-2:] == "fx":
+            a_conf = conf.copy()
+            a_conf["deepl_key"] = key.strip()
+            engine_array.append(DeepLUtil(a_conf))
+    
+    for key in conf["openai_key"].split(",,"):
+        if key.strip()[:2] == "sk":
+            a_conf = conf.copy()
+            a_conf["deepl_key"] = key.strip()
+            engine_array.append(OpenAIUtil(a_conf))
+
+    return engine_array
+
 @typer_app.command("translate")
 def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt file or folder name to be translated")]):
     """
@@ -24,8 +41,7 @@ def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt f
     """
     conf = init_conf()
     
-    deepL_handler = DeepLUtil(conf)
-    openAI_handler = OpenAIUtil(conf)
+    handlers = create_engine(conf)
     
     #if the input is a folder, translate all the srt files in the folder
     if os.path.isdir(file_or_folder_name):
@@ -34,10 +50,10 @@ def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt f
                 srt_file = os.path.join(file_or_folder_name, file)
                 print(f"\r\n\r\nProcessing file: {srt_file}")
                 srt_translator = SRTTranslator(srt_file, conf)
-                srt_translator.translate([deepL_handler, openAI_handler]).save()
+                srt_translator.translate(handlers).save()
     else:
         srt_translator = SRTTranslator(file_or_folder_name, conf)
-        srt_translator.translate([deepL_handler, openAI_handler]).save()
+        srt_translator.translate(handlers).save()
 
 @typer_app.command("scan")
 def scan_folder(
@@ -50,22 +66,22 @@ def scan_folder(
     Scan the srt files in the root folder(sub-folder) and copy them to a new folder with the target_language name
     """
     
-    # get the parent folder of the root_folder
-    parent_folder = os.path.abspath(os.path.join(root_folder, os.pardir))
+    # get the current folder of the root_folder
+    current_folder = os.path.abspath(root_folder)
     # check if the folder with parent_folder/target_language name exists, if true, print error message and exit
-    if os.path.exists(os.path.join(parent_folder, target_language)) or os.path.exists(os.path.join(parent_folder, movie_language)):
+    if os.path.exists(os.path.join(current_folder, target_language)) or os.path.exists(os.path.join(current_folder, movie_language)):
         if dellete_target_folder.lower()[0:1] == "y":
             # delete the folder and all the sub folders and files
-            shutil.rmtree(os.path.join(parent_folder, target_language))
-            shutil.rmtree(os.path.join(parent_folder, movie_language))
+            shutil.rmtree(os.path.join(current_folder, target_language))
+            shutil.rmtree(os.path.join(current_folder, movie_language))
         else:
             print(f"Folder {target_language} or {movie_language} already exists, please delete them first")
             exit()
     
     # create the folder with parent_folder/target_language name
-    os.mkdir(os.path.join(parent_folder, target_language))
+    os.mkdir(os.path.join(current_folder, target_language))
     if movie_language != target_language:
-        os.mkdir(os.path.join(parent_folder, movie_language))
+        os.mkdir(os.path.join(current_folder, movie_language))
     
     # walk through the root_folder and sub folders to find the srt files
     processed_result = {
@@ -83,11 +99,11 @@ def scan_folder(
                 # if file name contains the target_language, copy the file to the target folder and rename it to the root name
                 if target_language.lower() in file.lower():
                     processed_result["match_target_language"] += 1
-                    shutil.copyfile(os.path.join(root, file), os.path.join(parent_folder, target_language, f"{last_folder}.srt"))
+                    shutil.copyfile(os.path.join(root, file), os.path.join(current_folder, target_language, f"{last_folder}.srt"))
                 elif movie_language.lower() in file.lower():
                     processed_result["match_movie_language"] += 1
                     processed_result["size_of_srt_with_movie_language"] += os.path.getsize(os.path.join(root, file))
-                    shutil.copyfile(os.path.join(root, file), os.path.join(parent_folder, movie_language, f"{last_folder}.srt"))
+                    shutil.copyfile(os.path.join(root, file), os.path.join(current_folder, movie_language, f"{last_folder}.srt"))
                 else:
                     is_found = False
                 
@@ -119,11 +135,17 @@ def interact(
         
         if processed_result["match_movie_language"] > 0:
             conf = init_conf()
-            deepL_handler = DeepLUtil(conf)
-            deepl_usage = deepL_handler.get_usage()
-            if_proceed_translate = typer.prompt(f"I will translate {processed_result['size_of_srt_with_movie_language']/(1024):.0f}kb to {conf['target_language']}({target_language}). DeepL left {deepl_usage[0]/(1024):.0f} out of {deepl_usage[1]/(1024):.0f}. Do you want to proceed? (y/n)")
+            remain = 0
+            total = 0
+            # get only DeepLUtill handler
+            for deepL_handler in list(filter(lambda x: isinstance(x, DeepLUtil), create_engine(conf))):
+                usage = deepL_handler.get_usage()
+                #print(usage)
+                remain += usage[0]
+                total += usage[1]
+            if_proceed_translate = typer.prompt(f"I will translate {processed_result['size_of_srt_with_movie_language']/(1024):.0f}kb to {conf['target_language']}({target_language}). DeepL left {remain/(1024):.0f}kb out of {total/(1024):.0f}kb. Do you want to proceed? (y/n)")
             if if_proceed_translate.lower()[0:1] == "y":
-                translate(os.path.join(os.path.abspath(os.path.join(root_folder, os.pardir)), movie_language))
+                translate(os.path.join(os.path.abspath(root_folder), movie_language))
         else:
             print(f"No {movie_language} subtitles found")
     pass

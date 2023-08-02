@@ -20,7 +20,7 @@ class DeepLUtil(TranslatorBase):
     def __init__(self, conf:dict):
         self.conf = conf
         self.translator = deepl.Translator(self.conf["deepl_key"])
-        self.limit = self.translator.get_usage().character.limit-100000
+        self.limit = self.translator.get_usage().character.limit-1000
         self.current_count = self.translator.get_usage().character.count
         self.last_count_check = self.current_count
     
