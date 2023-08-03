@@ -187,3 +187,4 @@ class SRTTranslator:
         # write to the target file
         with open(self.target_file, "w") as target:
             target.write(srt.compose(self.subtitles))
+        return self.target_file

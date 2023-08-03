@@ -43,6 +43,7 @@ def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt f
     
     handlers = create_engine(conf)
     
+    translated_file_name = []
     #if the input is a folder, translate all the srt files in the folder
     if os.path.isdir(file_or_folder_name):
         for file in os.listdir(file_or_folder_name):
@@ -50,10 +51,12 @@ def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt f
                 srt_file = os.path.join(file_or_folder_name, file)
                 print(f"\r\n\r\nProcessing file: {srt_file}")
                 srt_translator = SRTTranslator(srt_file, conf)
-                srt_translator.translate(handlers).save()
+                translated_file_name.append(srt_translator.translate(handlers).save())
     else:
         srt_translator = SRTTranslator(file_or_folder_name, conf)
-        srt_translator.translate(handlers).save()
+        translated_file_name.append(srt_translator.translate(handlers).save())
+    
+    return translated_file_name
 
    
 @typer_app.command("scan")
@@ -137,12 +140,19 @@ def interact(
     """
     scan and translate
     """
+    # show version
+    print("="*20)
+    print_version()
+    print("="*20)
     if_proceed = typer.prompt(f"I will copy the {target_language} subtitles or copy the {movie_language}(for translating) ones under \"{root_folder}\". Do you want to proceed? (y/n)")
     if if_proceed.lower()[0:1] == "y":
         processed_result = scan_folder(root_folder, export_folder, target_language, movie_language, dellete_target_folder)
         if processed_result["match_target_language"] > 0:
             print(f">> Found {processed_result['match_target_language']} subtitles and copied to {target_language} folder")
-        elif processed_result["match_movie_language"] > 0:
+        else:
+            print(f"No {target_language} subtitle is found")
+        
+        if processed_result["match_movie_language"] > 0:
             conf = init_conf()
             remain = 0
             total = 0
@@ -154,10 +164,24 @@ def interact(
                 total += usage[1]
             if_proceed_translate = typer.prompt(f"I will translate {processed_result['size_of_srt_with_movie_language']/(1024):.0f}kb to {conf['target_language']}({target_language}). DeepL left {remain/(1024):.0f}kb out of {total/(1024):.0f}kb. Do you want to proceed? (y/n)")
             if if_proceed_translate.lower()[0:1] == "y":
-                translate(os.path.join(os.path.abspath(root_folder), movie_language))
+                translated_file_name_list = translate(os.path.join(os.path.abspath(export_folder), movie_language))
+                if len(translated_file_name_list) > 0:
+                    print(f'\r\n\r\nPut the following Translated files in "/{movie_language}" folder.')
+                    for file_name in translated_file_name_list:
+                        # print the file name only. content after the last "/" is the file name
+                        print(file_name.split("/")[-1])
         else:
-            print(f"No {target_language} or {movie_language} subtitle is found")
-    pass
+            print(f"No {movie_language} subtitle is found")
+
+@typer_app.command("version")
+def print_version():
+    version = "Missing"
+    # read the version from the file pyproject.toml
+    with open(os.path.join(os.path.dirname(__file__), "pyproject.toml"), "r") as f:
+        # find the line that start with version
+        version = [line for line in f.readlines() if line.startswith("version")][0].split("=")[1].strip().replace("\"", "")
+        
+    print(f"Version: {version}")
 
 # start the main function
 if __name__ == '__main__':
