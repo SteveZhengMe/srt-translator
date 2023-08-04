@@ -114,11 +114,14 @@ class SRTTranslator:
                 for translator in translator_list:
                     if translator.is_available():
                         print("-"*10 + f" Index: {index_start} ~ {subtitle.index} " + "-"*10)
-                        translated_list.extend(translator.translate(batch))
-                        batch = []
-                        index_start = subtitle.index+1
-                        is_translated = True
-                        break
+                        try:
+                            translated_list.extend(translator.translate(batch))
+                            batch = []
+                            index_start = subtitle.index+1
+                            is_translated = True
+                            break
+                        except deepl.exceptions.QuotaExceededException as e:
+                            continue
                 if not is_translated:
                     raise Exception("All translators are not available")
         
