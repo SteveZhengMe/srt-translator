@@ -35,7 +35,7 @@ def create_engine(conf):
     return engine_array
 
 @typer_app.command("translate")
-def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt file or folder name to be translated")]):
+def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt file or folder name to be translated")]="/app/data"):
     """
     Parameter: file (.srt) or folder (the application will translate all srt files)
     """
@@ -61,11 +61,11 @@ def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt f
    
 @typer_app.command("scan")
 def scan_folder(
-    root_folder:Annotated[str,typer.Argument(help="The root folder that contains the srt files")], 
-    export_folder:Annotated[str,typer.Argument(help="The export folder")], 
-    target_language:Annotated[str,typer.Argument(help="The application finds the srt files that contain the target_language.")],
-    movie_language:Annotated[str,typer.Argument(help="The application translate the srt files that contain the movie_language.")],
-    dellete_target_folder:Annotated[str,typer.Argument(help="Delete the target folder if it exists")]="n"
+    root_folder:Annotated[str,typer.Argument(help="The root folder that contains the srt files")]="/app/data", 
+    export_folder:Annotated[str,typer.Argument(help="The export folder")]="/app/export", 
+    target_language:Annotated[str,typer.Argument(help="The application finds the srt files that contain the target_language.")]=os.getenv("target_language_name","Chinese"),
+    movie_language:Annotated[str,typer.Argument(help="The application translate the srt files that contain the movie_language.")]=os.getenv("movie_language_name","English"),
+    dellete_target_folder:Annotated[str,typer.Argument(help="Delete the target folder if it exists")]="y"
 ):
     """
     Scan the srt files in the root folder(sub-folder) and copy them to a new folder with the target_language name
@@ -131,11 +131,11 @@ def scan_folder(
 
 @typer_app.command("interact")
 def interact(
-    root_folder:Annotated[str,typer.Argument(help="The root folder that contains the srt files")], 
-    export_folder:Annotated[str,typer.Argument(help="The export folder")], 
-    target_language:Annotated[str,typer.Argument(help="The application finds the srt files that contain the target_language.")],
-    movie_language:Annotated[str,typer.Argument(help="The application translate the srt files that contain the movie_language.")],
-    dellete_target_folder:Annotated[str,typer.Argument(help="Delete the target folder if it exists")]="n"
+    root_folder:Annotated[str,typer.Argument(help="The root folder that contains the srt files")]="/app/data", 
+    export_folder:Annotated[str,typer.Argument(help="The export folder")]="/app/export",
+    target_language:Annotated[str,typer.Argument(help="The application finds the srt files that contain the target_language.")]=os.getenv("target_language_name","Chinese"),
+    movie_language:Annotated[str,typer.Argument(help="The application translate the srt files that contain the movie_language.")]=os.getenv("movie_language_name","English"),
+    dellete_target_folder:Annotated[str,typer.Argument(help="Delete the target folder if it exists")]="y"
 ):
     """
     scan and translate

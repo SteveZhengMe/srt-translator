@@ -10,4 +10,4 @@ RUN apt-get update \
 RUN curl -sSL https://install.python-poetry.org | python3 -
 RUN poetry install --no-root
 VOLUME ["/app/data","/app/export"]
-ENTRYPOINT [ "poetry", "run", "python3", "/app/app.py", "interact", "/app/data", "/app/export", "Chinese", "English", "y"]
+ENTRYPOINT [ "poetry", "run", "python3", "/app/app.py"]
