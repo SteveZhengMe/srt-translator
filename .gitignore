@@ -1,3 +1,4 @@
+prod*
 data/
 poetry.lock
 # use poetry, requirements.txt is not needed

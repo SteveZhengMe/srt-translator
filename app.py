@@ -11,10 +11,12 @@ import shutil
 typer_app = typer.Typer()
 
 def init_conf():
+    # os.environ will convert all key to uppercase, convert them back if you use the lower cased key names
     conf = {
         **dotenv.dotenv_values(".env"),  # load shared development variables
-        **os.environ  # override loaded values with environment variables
+        **{k.lower(): v for k, v in os.environ.items()}  # override loaded values with environment variables
     }
+    
     return conf
 
 def create_engine(conf):

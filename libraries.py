@@ -94,7 +94,7 @@ class SRTTranslator:
         if os.path.isfile(srt_file):
             # add language information to the target file name
             self.target_file = srt_file[:-4] + "_" + self.conf["target_language"] + ".srt"
-            with open(srt_file) as file:
+            with open(srt_file, encoding="utf-8") as file:
                 self.subtitles = self.__validate_subtitles(file.read())
         else:
             # raise file not found exception
@@ -188,6 +188,6 @@ class SRTTranslator:
         
     def save(self):
         # write to the target file
-        with open(self.target_file, "w") as target:
+        with open(self.target_file, "w", encoding="utf-8") as target:
             target.write(srt.compose(self.subtitles))
         return self.target_file
