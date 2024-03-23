@@ -1,6 +1,5 @@
 vscode:
     extensions:
-        - GitHub.copilot
         - oderwat.indent-rainbow
         - ZainChen.json
         - ms-python.python
