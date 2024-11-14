@@ -5,6 +5,7 @@ vscode:
         - ms-python.python
         - ms-azuretools.vscode-docker
         - VisualStudioExptTeam.vscodeintellicode
+        - GitHub.vscode-github-actions
         - esbenp.prettier-vscode
 tasks:
   # many tasks will run in parallel or use "gp sync-await and gp sync-done."

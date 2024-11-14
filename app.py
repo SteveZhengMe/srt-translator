@@ -19,20 +19,22 @@ def init_conf():
     
     return conf
 
-def create_engine(conf):
+def create_engine(conf, deepl=True, openai=True):
     engine_array = []
     # get the deepl key from conf
-    for key in conf["deepl_key"].split(",,"):
-        if key.strip()[-2:] == "fx":
-            a_conf = conf.copy()
-            a_conf["deepl_key"] = key.strip()
-            engine_array.append(DeepLUtil(a_conf))
+    if deepl:
+        for key in conf["deepl_key"].split(",,"):
+            if key.strip()[-2:] == "fx":
+                a_conf = conf.copy()
+                a_conf["deepl_key"] = key.strip()
+                engine_array.append(DeepLUtil(a_conf))
     
-    for key in conf["openai_key"].split(",,"):
-        if key.strip()[:2] == "sk":
-            a_conf = conf.copy()
-            a_conf["deepl_key"] = key.strip()
-            engine_array.append(OpenAIUtil(a_conf))
+    if openai:
+        for key in conf["openai_key"].split(",,"):
+            if key.strip()[:2] == "sk":
+                a_conf = conf.copy()
+                a_conf["openai_key"] = key.strip()
+                engine_array.append(OpenAIUtil(a_conf))
 
     return engine_array
 
@@ -60,7 +62,7 @@ def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt f
     
     return translated_file_name
 
-   
+
 @typer_app.command("scan")
 def scan_folder(
     root_folder:Annotated[str,typer.Argument(help="The root folder that contains the srt files")]="/app/data", 

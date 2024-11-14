@@ -9,6 +9,7 @@
         "ZainChen.json",
         "esbenp.prettier-vscode",
         "Gruntfuggly.todo-tree",
+        "GitHub.vscode-github-actions",
         "redhat.vscode-yaml"
       ]
     }
