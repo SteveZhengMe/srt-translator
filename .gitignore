@@ -5,6 +5,7 @@ poetry.lock
 requirements.txt
 .env
 test-data/export/*
+test-data/test.zh.srt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

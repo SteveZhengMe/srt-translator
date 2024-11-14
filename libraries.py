@@ -34,14 +34,17 @@ class DeepLUtil(TranslatorBase):
         return self.current_count < self.limit
     
     def translate(self, batch:list) -> list:
-        result = self.translator.translate_text(
-            batch, 
-            target_lang=self.conf["target_language"][0:2]
-        )
-        self.current_count += len("".join(batch))
-        return [item.text for item in result]
+        try:
+            result = self.translator.translate_text(
+                batch, 
+                target_lang=self.conf["target_language"][0:2]
+            )
+            self.current_count += len("".join(batch))
+            return [item.text for item in result]
+        except deepl.exceptions.QuotaExceededException as e:
+            return []
     
-    def get_usage(self):
+    def get_usage(self) -> tuple:
         return self.limit - self.current_count, self.limit
         
 
@@ -86,14 +89,19 @@ class OpenAIUtil(TranslatorBase):
                 time.sleep(2*(i+1))
                 continue
         
-        
 
 class SRTTranslator:
     def __init__(self, srt_file:str, conf:dict):
         self.conf = conf
         if os.path.isfile(srt_file):
             # add language information to the target file name
-            self.target_file = srt_file[:-4] + "_" + self.conf["target_language"] + ".srt"
+            if srt_file[-6:-4].isalpha() and srt_file[-7] == "." and srt_file[-4] == ".":
+                # XXXX.XX.srt -> XXXX.zh.srt
+                self.target_file = f"{srt_file[:-7]}.{self.conf['target_language'][:2]}.srt"
+            else:
+                # XXXX.srt -> XXXX.zh.srt
+                self.target_file = f"{srt_file[:-4]}.{self.conf['target_language'][:2]}.srt"
+            
             with open(srt_file, encoding="utf-8") as file:
                 self.subtitles = self.__validate_subtitles(file.read())
         else:
@@ -114,14 +122,13 @@ class SRTTranslator:
                 for translator in translator_list:
                     if translator.is_available():
                         print("-"*10 + f" Index: {index_start} ~ {subtitle.index} " + "-"*10)
-                        try:
-                            translated_list.extend(translator.translate(batch))
+                        translated_result = translator.translate(batch)
+                        if len(translated_result) > 0:
+                            translated_list.extend(translated_result)
                             batch = []
                             index_start = subtitle.index+1
                             is_translated = True
                             break
-                        except deepl.exceptions.QuotaExceededException as e:
-                            continue
                 if not is_translated:
                     raise Exception("All translators are not available")
         

@@ -25,34 +25,32 @@ class TestStringMethods(unittest.TestCase):
         self.assertEquals(self.conf["openai_key"][:2],"sk")
 
     def test_deepL_translate(self):
-        deepl_engines = create_engine(self.conf, openai=False)
-        if len(deepl_engines) > 0:
-            deepl_translator =  deepl_engines[0]
+        for deepl_translator in self.deepl_engine:
             result = deepl_translator.translate_text(
                 ["Hello, Tom. <br> In today’s [globalized] world, language barriers are a challenge that businesses and individuals often face.", "I speak Chinese"], 
                 target_lang=self.conf["target_language"][0:2]
             )
             self.assertEquals(result[0].text,"你好，汤姆。<br> 在当今[全球化]的世界里，语言障碍是企业和个人经常面临的挑战。")
             self.assertEquals(result[1].text,"我会说中文")
-        else:
-            self.assertTrue(False, "No deepl engine available.")
-    
+            break
+        
     def test_output(self):
         print("+"*20)
         print(self.conf["deepl_key"])
         print("+"*20)
     
     def test_deepl_get_usage(self):
-        deepl_engines = create_engine(self.conf, openai=False)
-        if len(deepl_engines) > 0:
-            for deepl_translator in deepl_engines:
-                # get usage
-                usage = deepl_translator.get_usage()
-                print(usage)
-                self.assertTrue(usage[1] > 0 and isinstance(usage[0], int))
-        else:
-            self.assertTrue(False, "No deepl engine available.")
-        
+        for deepl_translator in self.deepl_engine:
+            # get usage
+            usage = deepl_translator.get_usage()
+            print(usage)
+            self.assertTrue(usage[1] > 0 and isinstance(usage[0], int))
+
+    
+    def test_available(self):
+        for translater in self.deepl_engine:
+            print(translater.is_available())
+            
     def test_openai_translate(self):
         openai.api_key = self.conf["openai_key"]
         target_language = "zh_CN"
@@ -91,13 +89,20 @@ class TestStringMethods(unittest.TestCase):
         self.assertEquals(openai_util.translate(["Hello, Tom.|| In today’s [globalized] world, language barriers are a challenge that businesses and individuals often face.", "I speak Chinese."]),["你好，Tom。|| 在今天的[全球化]世界中，语言障碍是企业和个人经常面临的挑战。","我说中文。"])
         
     def test_integrate(self):
-        srt_parser = SRTTranslator("test-data/test.srt", self.conf)
+        # delete file: test-data/test.zh.srt
+        if os.path.exists("test-data/test.zh.srt"):
+            os.remove("test-data/test.zh.srt")
+        
+        srt_parser = SRTTranslator("test-data/test.en.srt", self.conf)
         engine = []
         engine.extend(self.deepl_engine)
         engine.extend(self.openai_engine)
         
         srt_parser.translate(engine)
         srt_parser.save()
+    
+        self.assertTrue(os.path.exists("test-data/test.zh.srt"))
+        self.assertGreater(os.path.getsize("test-data/test.zh.srt"), 500)
     
     def test_scan(self):
         root_folder = "./test-data/test"
