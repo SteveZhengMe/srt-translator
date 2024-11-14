@@ -1,5 +1,5 @@
 {
-  "name": "default-python-container",
+  "name": "python-poetry",
   "image": "mcr.microsoft.com/devcontainers/python:3.11-buster",
   "customizations": {
     "vscode": {
