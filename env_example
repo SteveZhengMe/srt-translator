@@ -1,3 +1,4 @@
+# When running locally or in testing mode, rename the file to ".env".
 # Define the openai and deepl keys if they are not in the environment variables, you can define multiple keys for each service, split by double commas
 #deepl_key=your_first_key,,your_second_key
 #openai_key=your_first_key,,your_second_key

@@ -3,6 +3,7 @@ data/
 poetry.lock
 # use poetry, requirements.txt is not needed
 requirements.txt
+.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
