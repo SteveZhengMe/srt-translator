@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "srt-translator"
-version = "0.5"
+version = "0.6"
 repository = "https://github.com/SteveZhengMe/srt-translator"
 keywords = ["srt", "subtitle", "OpenAI", "DeepL"]
 description = "Translate subtitle files to your language"

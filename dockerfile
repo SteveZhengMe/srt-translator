@@ -2,7 +2,7 @@
 FROM python:3.11-slim-buster
 ENV POETRY_HOME="/opt/poetry" \
     POETRY_NO_INTERACTION=1
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+ENV PATH="$POETRY_HOME/bin:$PATH"
 WORKDIR /app
 COPY . /app
 RUN apt-get update \

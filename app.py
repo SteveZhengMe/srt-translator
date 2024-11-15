@@ -1,4 +1,5 @@
 import os
+import time
 
 from libraries import DeepLUtil
 from libraries import OpenAIUtil
@@ -186,6 +187,12 @@ def print_version():
         version = [line for line in f.readlines() if line.startswith("version")][0].split("=")[1].strip().replace("\"", "")
         
     print(f"Version: {version}")
+    
+@typer_app.command("debug")
+def debug_mode():
+    print("Entering sleep mode for 10 minutes...")
+    time.sleep(600)  # 600 seconds is equivalent to 10 minutes
+    print("Waking up from sleep mode.")
 
 # start the main function
 if __name__ == '__main__':

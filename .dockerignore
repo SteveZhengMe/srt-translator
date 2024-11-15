@@ -1,6 +1,13 @@
 prod*
 .gitpod.yml
+unit_test.py
+.env
+*.sh
+*.ps1
 .github/
+.git/
 .devcontainer/
 dist/
 docs/
+test-data/
+.vscode/
