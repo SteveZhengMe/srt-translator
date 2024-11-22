@@ -28,8 +28,8 @@ jobs:
           context: . 
           push: true 
           tags: |
-            ${{ secrets.DOCKER_STEVE_USERNAME }}/my-app:${{ github.sha }}
-            ${{ secrets.DOCKER_STEVE_USERNAME }}/my-app:latest
+            ${{ secrets.DOCKER_STEVE_USERNAME }}/srt-translator:${{ github.sha }}
+            ${{ secrets.DOCKER_STEVE_USERNAME }}/srt-translator:latest
       
       - name: Logout from Docker Hub
         run: docker logout
