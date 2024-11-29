@@ -12,5 +12,5 @@ openai_user_prompt_zh_cn=你必须在翻译结果中保持HTML标签不变，并
 target_language_name=Chinese
 movie_language_name=English
 
-DAEMON_TRANSLATOR_BASE_FOLDERS=/movie|/tv
-DAEMON_RUN_AT=17:00:00|America/Toronto
+daemon_translator_base_folders=/movie|/tv
+daemon_run_at=17:00:00|America/Toronto

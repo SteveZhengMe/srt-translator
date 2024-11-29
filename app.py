@@ -253,7 +253,7 @@ def run_schedule(
         schedule.every(10).seconds.do(walk_and_translate, root_folders=debug_base_folder.split(';'))
     else:
         # DAEMON_RUN_AT=17:00:00|America/Toronto
-        schedule.every().day.at(conf.get("DAEMON_RUN_AT").split("|")[0], conf.get("DAEMON_RUN_AT").split("|")[1]).do(walk_and_translate, root_folders=conf.get("DAEMON_TRANSLATOR_BASE_FOLDERS","/movie|/tv").split('|'))
+        schedule.every().day.at(conf.get("daemon_run_at").split("|")[0], conf.get("daemon_run_at").split("|")[1]).do(walk_and_translate, root_folders=conf.get("daemon_translator_base_folders","/movie|/tv").split('|'))
     
     while True:
         n = schedule.idle_seconds()
