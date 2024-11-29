@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "srt-translator"
-version = "0.6"
+version = "1.0"
 repository = "https://github.com/SteveZhengMe/srt-translator"
 keywords = ["srt", "subtitle", "OpenAI", "DeepL"]
 description = "Translate subtitle files to your language"
@@ -16,6 +16,8 @@ openai = "^0.27.8"
 srt = "^3.5.3"
 typer = "^0.9.0"
 python-dotenv = "^1.0.0"
+schedule = "^1.2.2"
+pytz = "^2024.2"
 
 
 [build-system]

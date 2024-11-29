@@ -5,6 +5,7 @@ poetry.lock
 requirements.txt
 .env
 test-data/export/*
+test-data/walk_translate/*
 test-data/test.zh.srt
 
 # Byte-compiled / optimized / DLL files

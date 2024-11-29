@@ -22,5 +22,5 @@ if [ -z "$deepl_key" ] || [ -z "$openai_key" ]
 then
     docker run --rm -it -v ./data/subs:/app/data -v ./data:/app/export --env-file ./.env $image $2
 else
-    docker run --rm -it -v ./data:/app/data -v ./data:/app/export --env-file ./.env -e deepl_key -e openai_key $image $2
+    docker run --rm -it -v ./data/subs:/app/data -v ./data:/app/export --env-file ./.env -e deepl_key -e openai_key $image $2
 fi

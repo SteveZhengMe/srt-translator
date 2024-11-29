@@ -1,13 +1,17 @@
 import os
 import time
+import functools
 
 from libraries import DeepLUtil
 from libraries import OpenAIUtil
 from libraries import SRTTranslator
+
 import typer
 from typing_extensions import Annotated
 import dotenv
 import shutil
+import schedule
+import re
 
 typer_app = typer.Typer()
 
@@ -24,14 +28,14 @@ def create_engine(conf, deepl=True, openai=True):
     engine_array = []
     # get the deepl key from conf
     if deepl:
-        for key in conf["deepl_key"].split(",,"):
+        for key in conf.get("deepl_key","").split(",,"):
             if key.strip()[-2:] == "fx":
                 a_conf = conf.copy()
                 a_conf["deepl_key"] = key.strip()
                 engine_array.append(DeepLUtil(a_conf))
     
     if openai:
-        for key in conf["openai_key"].split(",,"):
+        for key in conf.get("openai_key","").split(",,"):
             if key.strip()[:2] == "sk":
                 a_conf = conf.copy()
                 a_conf["openai_key"] = key.strip()
@@ -40,7 +44,9 @@ def create_engine(conf, deepl=True, openai=True):
     return engine_array
 
 @typer_app.command("translate")
-def translate(file_or_folder_name: Annotated[str, typer.Argument(help="The srt file or folder name to be translated")]="/app/data"):
+def translate(
+    file_or_folder_name: Annotated[str, typer.Argument(help="The srt file or folder name to be translated")]="/app/data"
+):
     """
     Parameter: file (.srt) or folder (the application will translate all srt files)
     """
@@ -167,7 +173,7 @@ def interact(
                 #print(usage)
                 remain += usage[0]
                 total += usage[1]
-            if_proceed_translate = typer.prompt(f"I will translate {processed_result['size_of_srt_with_movie_language']/(1024):.0f}kb to {conf['target_language']}({target_language}). DeepL left {remain/(1024):.0f}kb out of {total/(1024):.0f}kb. Do you want to proceed? (y/n)")
+            if_proceed_translate = typer.prompt(f"I will translate {processed_result['size_of_srt_with_movie_language']/(1024):.0f}kb to {conf.get('target_language','zh_CN')}({target_language}). DeepL left {remain/(1024):.0f}kb out of {total/(1024):.0f}kb. Do you want to proceed? (y/n)")
             if if_proceed_translate.lower()[0:1] == "y":
                 translated_file_name_list = translate(os.path.join(os.path.abspath(export_folder), movie_language))
                 if len(translated_file_name_list) > 0:
@@ -180,6 +186,9 @@ def interact(
 
 @typer_app.command("version")
 def print_version():
+    """
+    Show the currrent version
+    """
     version = "Missing"
     # read the version from the file pyproject.toml
     with open(os.path.join(os.path.dirname(__file__), "pyproject.toml"), "r") as f:
@@ -190,9 +199,70 @@ def print_version():
     
 @typer_app.command("debug")
 def debug_mode():
+    """
+    Debug mode: the application will sleep 10 minusts and close
+    """
     print("Entering sleep mode for 10 minutes...")
     time.sleep(600)  # 600 seconds is equivalent to 10 minutes
     print("Waking up from sleep mode.")
+
+def catch_exceptions(cancel_on_failure=False):
+    def catch_exceptions_decorator(job_func):
+        @functools.wraps(job_func)
+        def wrapper(*args, **kwargs):
+            try:
+                return job_func(*args, **kwargs)
+            except:
+                import traceback
+                print(traceback.format_exc())
+                if cancel_on_failure:
+                    return schedule.CancelJob
+        return wrapper
+    return catch_exceptions_decorator
+
+@catch_exceptions(cancel_on_failure=False)
+def walk_and_translate(root_folders):
+    conf = init_conf()
+    target_language = conf.get('target_language','zh_CN')[:2]
+    
+    for root_folder in root_folders:
+        # root: current folder; 
+        # dirs: all sub folders in root
+        # files: all files in root
+        for root, dirs, files in os.walk(root_folder):
+            if "translate" in files:  # translate srt files an empty file translate exists.
+                for file in files:
+                    if file.endswith(".mp4") or file.endswith(".mkv"): # loop all videp files
+                        if f"{file[:-4]}.en.srt" in files and not any(re.match(rf"{file[:-4]}\.{target_language}.*\.srt", f) for f in os.listdir(root)): # 如果没有file.zhXXXXXX.srt文件不存在，并且file.en.srt存在
+                            # if file name contains the target_language and the file is more than 0.5k, copy the file to the target folder and rename it to the root name
+                            en_subtitle_file = os.path.join(root, f"{file[:-4]}.en.srt")
+                            translated_subtitle_file = translate(en_subtitle_file)
+                            print(f"-> Translated: {translated_subtitle_file}")
+                os.remove(os.path.join(root, "translate"))
+
+@typer_app.command("schedule")
+def run_schedule(
+    debug_base_folder: Annotated[str, typer.Argument(help="debug mode change interval hours to interval seconds")]="",
+):
+    """
+    Walk through all sub-folders, if the folder has an empyt file 'translate', it will translate all En subtitles to Zh
+    """
+    
+    conf = init_conf()
+    if debug_base_folder != "":
+        schedule.every(10).seconds.do(walk_and_translate, root_folders=debug_base_folder.split(';'))
+    else:
+        # DAEMON_RUN_AT=17:00:00|America/Toronto
+        schedule.every().day.at(conf.get("DAEMON_RUN_AT").split("|")[0], conf.get("DAEMON_RUN_AT").split("|")[1]).do(walk_and_translate, root_folders=conf.get("DAEMON_TRANSLATOR_BASE_FOLDERS","/movie|/tv").split('|'))
+    
+    while True:
+        n = schedule.idle_seconds()
+        if n is None:
+            break
+        elif n > 0:
+            time.sleep(n)
+        schedule.run_pending()
+
 
 # start the main function
 if __name__ == '__main__':

@@ -2,11 +2,12 @@ import unittest
 import os
 import openai
 import srt
+import tarfile
 
 from libraries import DeepLUtil
 from libraries import OpenAIUtil
 from libraries import SRTTranslator
-from app import init_conf, create_engine, scan_folder
+from app import init_conf, create_engine, scan_folder, walk_and_translate
 
 class TestStringMethods(unittest.TestCase):
     # setup
@@ -35,6 +36,7 @@ class TestStringMethods(unittest.TestCase):
             break
         
     def test_output(self):
+        print("\r\n")
         print("+"*20)
         print(self.conf["deepl_key"])
         print("+"*20)
@@ -122,3 +124,38 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(os.path.exists("./test-data/export/English"))
         self.assertEqual(len(os.listdir("./test-data/export/Chinese")), 2)
         self.assertEqual(len(os.listdir("./test-data/export/English")), 1)
+    
+    def test_walk_and_translate(self):
+        root_folder = "./test-data/walk_translate"
+        
+        # prepare testing environment, delete files and extract a new set.
+        if not os.path.exists(root_folder):
+            os.makedirs(root_folder)
+        else:
+            for root, dirs, files in os.walk(root_folder, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+        
+        tar = tarfile.open("./test-data/walk_translate.tar.gz")
+        tar.extractall(path=root_folder, filter='data')
+        tar.close()
+        
+        # run testing
+        walk_and_translate([root_folder])
+        
+        self.assertTrue(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S01","Extraordinary - S01E01 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertTrue(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S01","Extraordinary - S01E02 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S01","Extraordinary - S01E03 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S01","translate")))
+        
+        self.assertTrue(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S02","Extraordinary - S01E01 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertTrue(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S02","Extraordinary - S01E02 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S02","Extraordinary - S01E03 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S02","translate")))
+        
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S03","Extraordinary - S01E01 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S03","Extraordinary - S01E02 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S03","Extraordinary - S01E03 - Have Nots WEBRip-1080p.zh.srt")))
+        self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S03","translate")))
