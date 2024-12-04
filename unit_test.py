@@ -42,10 +42,11 @@ class TestStringMethods(unittest.TestCase):
         print("+"*20)
     
     def test_deepl_get_usage(self):
+        print()
         for deepl_translator in self.deepl_engine:
             # get usage
             usage = deepl_translator.get_usage()
-            print(usage)
+            print((usage[0] if usage[0]>0 else 0, usage[1]+1000))
             self.assertTrue(usage[1] > 0 and isinstance(usage[0], int))
 
     
