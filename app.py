@@ -258,8 +258,15 @@ def run_schedule(
     while True:
         n = schedule.idle_seconds()
         if n is None:
+            print("No schedule available, stop the application.")
             break
         elif n > 0:
+            if n > 3600:
+                print(f"Found schedule, sleep {n/3600} hours.")
+            elif n > 60 and n < 3600:
+                print(f"Found schedule, sleep {n/60} minutes.")
+            else:
+                print(f"Found schedule, sleep {n} seconds.")
             time.sleep(n)
         schedule.run_pending()
 
