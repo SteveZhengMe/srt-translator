@@ -14,3 +14,7 @@ movie_language_name=English
 
 daemon_translator_base_folders=/movie|/tv
 daemon_run_at=17:00:00|America/Toronto
+
+# You can set NTFY service.
+# ntfy_base_url=https://ntfy.sh
+# ntfy_topic=SRT

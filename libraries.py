@@ -2,6 +2,7 @@ import datetime
 import errno
 import os
 import time
+import requests
 import openai
 import deepl
 import srt
@@ -45,7 +46,8 @@ class DeepLUtil(TranslatorBase):
             return []
     
     def get_usage(self) -> tuple:
-        return self.limit - self.current_count, self.limit
+        left = self.limit - self.current_count
+        return left if left>0 else 0, self.limit
         
 
 class OpenAIUtil(TranslatorBase):
@@ -198,3 +200,25 @@ class SRTTranslator:
         with open(self.target_file, "w", encoding="utf-8") as target:
             target.write(srt.compose(self.subtitles))
         return self.target_file
+
+class NtfyService:
+    def __init__(self, conf:dict, tags="", priority="") -> None:
+        ntfy_server = conf.get("ntfy_base_url", "")
+        ntfy_topic = conf.get("ntfy_topic", "")
+        if ntfy_server != "" and ntfy_topic != "":
+            self.ntfy_url = f"{ntfy_server[:-1] if ntfy_server.endswith('/') else ntfy_server}/{ntfy_topic}"
+            self.header = {
+                "Content-Type": "charset=utf-8",
+                "Markdown": "yes", # markdown only work in the web app
+            }
+            if tags != "":
+                self.header["Tags"] = tags
+            if priority != "":
+                self.header["Priority"] = priority
+        else:
+            raise OSError("Environment variable 'ntfy_base_url' and ntfy_topic' are not set")
+    
+    def notify(self, title, message):
+        self.header["Title"] = title.encode('utf-8')
+        response = requests.put(self.ntfy_url, data=message.encode('utf-8'), headers=self.header)
+        response.raise_for_status()

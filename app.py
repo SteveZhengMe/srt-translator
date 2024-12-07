@@ -5,6 +5,7 @@ import functools
 from libraries import DeepLUtil
 from libraries import OpenAIUtil
 from libraries import SRTTranslator
+from libraries import NtfyService
 
 import typer
 from typing_extensions import Annotated
@@ -224,8 +225,9 @@ def catch_exceptions(cancel_on_failure=False):
 def walk_and_translate(root_folders):
     conf = init_conf()
     target_language = conf.get('target_language','zh_CN')[:2]
-    
+    notify_dict = {}
     for root_folder in root_folders:
+        translate_count = 0
         # root: current folder; 
         # dirs: all sub folders in root
         # files: all files in root
@@ -238,7 +240,21 @@ def walk_and_translate(root_folders):
                             en_subtitle_file = os.path.join(root, f"{file[:-4]}.en.srt")
                             translated_subtitle_file = translate(en_subtitle_file)
                             print(f"-> Translated: {translated_subtitle_file}")
+                            translate_count += 1
                 os.remove(os.path.join(root, "translate"))
+        key = os.path.basename(root_folder)
+        if key.startswith("Season"):
+            key = os.path.basename(os.path.dirname(root_folder))
+        notify_dict[key] = translate_count
+    
+    # send notification if any subtitle is translated
+    if any(value > 0 for value in notify_dict.values()):
+        # get Deepl usage
+        usage_left = sum(deepl_translator.get_usage()[0] for deepl_translator in create_engine(conf, deepl=True, openai=False))
+            
+        ntfy = NtfyService(conf, tags="robot")
+        ntfy.notify(f"{sum(notify_dict.values())} Subtitles are translated", "\n".join([f"{key} => {value};" for key, value in notify_dict.items()]) + f"\n\nDeepL has {(usage_left)/1000:.1f}k left")
+    
 
 @typer_app.command("schedule")
 def run_schedule(

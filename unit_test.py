@@ -3,6 +3,7 @@ import os
 import openai
 import srt
 import tarfile
+import requests
 
 from libraries import DeepLUtil
 from libraries import OpenAIUtil
@@ -160,3 +161,29 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S03","Extraordinary - S01E02 - Have Nots WEBRip-1080p.zh.srt")))
         self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S03","Extraordinary - S01E03 - Have Nots WEBRip-1080p.zh.srt")))
         self.assertFalse(os.path.exists(os.path.join(root_folder, "The.Lord.of.the.Rings.S03","translate")))
+
+    def test_ntfy_service(self):
+        ntfy_server = self.conf.get("ntfy_base_url", "")
+        ntfy_topic = self.conf.get("ntfy_topic", "test")
+        
+        if ntfy_server != "":
+            if ntfy_server.endswith("/"):
+                ntfy_server = ntfy_server[:-1]
+            
+            self.assertEquals(
+                requests.put(f"{ntfy_server}/{ntfy_topic}",
+                    data="""
+                        测试 **SRT** NTFY server.
+                        
+                        - 第二行
+                        - 第三行
+                    """.encode('utf-8'),
+                    # data="Test_1".encode('utf-8'),
+                    headers={
+                        "Content-Type": "charset=utf-8",
+                        "Title": "Testing Message [测试信息]".encode('utf-8'),
+                        "Priority": "low",
+                        "Markdown": "yes", # markdown only work in the web app
+                        "Tags": "warning,skull"
+                    }
+                ).status_code, 200)
