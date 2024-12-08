@@ -278,9 +278,9 @@ def run_schedule(
             break
         elif n > 0:
             if n > 3600:
-                print(f"Found schedule, sleep {n/3600} hours.")
+                print(f"Found schedule, sleep {round(n/3600)} hours.")
             elif n > 60 and n < 3600:
-                print(f"Found schedule, sleep {n/60} minutes.")
+                print(f"Found schedule, sleep {round(n/60)} minutes.")
             else:
                 print(f"Found schedule, sleep {n} seconds.")
             time.sleep(n)
